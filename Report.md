@@ -57,6 +57,14 @@ In this section, you will need to provide some form of visualization that summar
 - _Is the visualization thoroughly analyzed and discussed?_
 - _If a plot is provided, are the axes, title, and datum clearly defined?_
 
+![Word Frequency for each category](treemap.PNG "Treemap")
+
+The above plot is called a treemap. This treemap demonstrates the frequency of words per each category with the size of each box representing the volume of the word or category. In order to generate the dataset for this visualization, the Natural Language Tool Kit (NLTK) was used to filter out words by part of speech. The parts of speech eliminated to create this graph were pronouns, conjunctions, prepositions, pre-determiners, and interjections. Although these words may be useful for the algorithm's analysis of the Tweets, for visualization it provided the same top words for each category. This is due to some words being very common in questions, like "to" and "why". These words don't really help us visualize the differences in categories.
+
+The bottom-right tan box represents the most common category - VMs. Unsurprisingly, you can see the most common word is "VM". The rest of the common words are still very similar between categories, even with removing the most obvious culprits. This chart demonstrates why this problem can't be solved through more simplistic methods such as word frequency. Some categories - such as billing questions represented in blue - shine in this graph with several different unique words as the most common tweeted. 
+
+
+
 ### Algorithms and Techniques
 In this section, you will need to discuss the algorithms and techniques you intend to use for solving the problem. You should justify the use of each one based on the characteristics of the problem and the problem domain. Questions to ask yourself when writing this section:
 - _Are the algorithms you will use, including any default variables/parameters in the project clearly defined?
@@ -71,13 +79,17 @@ The approach for this project, as mentioned above, is to use a Convolutional Neu
 
 **MAX_SEQUENCE_LENGTH** is the maximum length of a sequence that will be output from the input tweet. A _sequence_ is just a numerical representation of words. In our case, we're turning each word of a tweet into a number in our sequence. We've chosen the maximum length to be 50 words. This should encompass almost all tweets, as that would be an average word length of 6 letters to hit the tweet character limit. 
 
-These constants are used to prepare the Tweets for processing through the CNN. This CNN is will work on a matrix of the Tweet, instead of the more common method of operating on averages or sums of the _word2vec_ embeddings. As each sequence is fed into the CNN, filters attempt to pick out the most relevant patterns present in the input data. On top of these filters, we have other filters picking out patterns of filters. Then, we pool all of these together to help reduce the size of the network, and add more filters on! This process is the basis for all CNNs. In our network, we're using two sets of filtering layers, with a fully connected neural network at the end to output predictions of which category is the most probable. 
+**MIN_SAMPLES** defines the minimum number of samples a category needs to contain in order to train/test on it. This is set to 50 for our purposes. A higher requirement for samples will lead to better accuracy, but can be difficult to obtain. 
+
+These constants are used to prepare the Tweets for processing through the CNN. This CNN is will work on a matrix of the Tweet, instead of the more common method of operating on averages or sums of the _word2vec_ embeddings. As each sequence is fed into the CNN, filters attempt to pick out the most relevant patterns present in the input data. On top of these filters, we create pools to allow the network to detect the pattern in differnt positions within the tweet. This process is the basis for all CNNs. In our network, the _word2vec_ embeddings are fed into four different parallel filters. Each set of filters is individually pooled, then concatenated together. This total array is fed into a dense neural network that is globally averaged together. Then we've created another dense network with a _softmax_ activation. This outputs the likelyhood of each tweet belong to a particular category. 
+
+
 
 
 ### Benchmark
-In this section, you will need to provide a clearly defined benchmark result or threshold for comparing across performances obtained by your solution. The reasoning behind the benchmark (in the case where it is not an established result) should be discussed. Questions to ask yourself when writing this section:
-- _Has some result or value been provided that acts as a benchmark for measuring performance?_
-- _Is it clear how this result or value was obtained (whether by data or by hypothesis)?_
+
+In order to establish the effectiveness of my model, I consider two metrics: _Categorical Accuracy_ and _Top 3 Accuracy_. We have available a very good paper to compare against in Yoon Kim's ^[1] work. Our model corresponds closely with what she defines as CNN-static. Her model's accuracy over several different test sets ranges from 81.5% to 93.4% (ignoring SST-1, which I consider an outlier). We will consider our model a success if the _Categorical Accuracy_ surpasses the minimum of those tests - 81.5%.
+
 
 
 ## III. Methodology
@@ -89,11 +101,25 @@ In this section, all of your preprocessing steps will need to be clearly documen
 - _Based on the **Data Exploration** section, if there were abnormalities or characteristics that needed to be addressed, have they been properly corrected?_
 - _If no preprocessing is needed, has it been made clear why?_
 
+Our data is provided as large CSV files with classification performed by hand. Along with the category, there are several other fields of information for each Tweet we will train on. These columns aren't of value for us, so I immediately drop them from the dataframe. In addition to removing un-wanted information, Tweets that aren't categorized need to be removed. This can be accomplished by converting the empty fields to NAN values and using the fast dropna method. This accomplished the basic cleaning needed for the data. Next, we perform some actions a little more specific to our particular algorithm.
+
+In order to properly train for a category, we will need enough samples to allow the network to learn patterns. This value is mostly based on experience, and I've set it to 50 as my baseline. The constant can be adjusted, allowing for further tuning. Addtionally, neural networks work best with their targets expressed as integers. We'll accomplish this by _coding_ the categories, using the built-in Pandas method. After coding, each category will have a single corresponding number. For example, 'Active Directory' will be '3'.
+
+Similar to encoding categories to numbers, the input tweets themselves need a representation that is easily understood by the neural networks. This is accomplished by using a _Tokenizer_. Once fit onto a corpus, the _Tokenizer_ will assign a number to each word. This allows us to turn any text into an array of numbers that can be processed by the neural network. Conveniently, Keras included a _Tokenizer_. Our implementation will utilize this Keras function.
+
+
+
 ### Implementation
 In this section, the process for which metrics, algorithms, and techniques that you implemented for the given data will need to be clearly documented. It should be abundantly clear how the implementation was carried out, and discussion should be made regarding any complications that occurred during this process. Questions to ask yourself when writing this section:
 - _Is it made clear how the algorithms and techniques were implemented with the given datasets or input data?_
 - _Were there any complications with the original metrics or techniques that required changing prior to acquiring a solution?_
 - _Was there any part of the coding process (e.g., writing complicated functions) that should be documented?_
+
+In order to perform this classification, I implemented a two-part neural network in Keras. The solution was created and ran inside of a Jupyter Notebook utilizing Tensorflow-GPU. 
+
+The first neural network is a _word2vec_ network that was pre-trained on an extremely large corpus (a set of text). The vectors created from a word2vec network are called _Embeddings_. They are a popular way to represent textual information within machine learning. The created embeddings contain a representation for the word that is learned from the corpus, which can reflect the relationship to other words. In my network, I locked the learned embeddings from being trained. In this case, I'm relying completely on the Google-trained set "GoogleNews-Vectors-negative300". The 300 here is an important value, as it represents the length of each embedding vector.
+
+
 
 ### Refinement
 In this section, you will need to discuss the process of improvement you made upon the algorithms and techniques you used in your implementation. For example, adjusting parameters for certain models to acquire improved solutions would fall under the refinement category. Your initial and final solutions should be reported, as well as any significant intermediate results as necessary. Questions to ask yourself when writing this section:
@@ -152,3 +178,5 @@ In this section, you will need to provide discussion as to how one aspect of the
 - Are all the resources used for this project correctly cited and referenced?
 - Is the code that implements your solution easily readable and properly commented?
 - Does the code execute without error and produce results similar to those reported?
+
+[1] Kim, Yoon https://arxiv.org/pdf/1408.5882.pdf
