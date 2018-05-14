@@ -7,9 +7,6 @@ January 31st, 2018
 _(approx. 1-2 pages)_
 
 ### Project Overview
-In this section, look to provide a high-level overview of the project in layman’s terms. Questions to ask yourself when writing this section:
-- _Has an overview of the project been provided, such as the problem domain, project origin, and related datasets or input data?_
-- _Has enough background information been given so that an uninformed reader would understand the problem domain and following problem statement?_
 
 The goal of this project is to categorize tweets directed at the @AzureSupport handle into the closest Azure service category, such as "Web Applications". This falls into the general *machine learning* tasks called [*Classification*](https://en.wikipedia.org/wiki/Statistical_classification). The field of text classification is one of many *Natural Language Problems* that machine learning has been applied to effectively. After training the network, we will be able to predict the top three categories that an incoming tweet may belong.
 
@@ -17,10 +14,6 @@ The goal of this project is to categorize tweets directed at the @AzureSupport h
  Our solution to this problem will utilize a *convolutional neural network* operating on word vectors created by a pre-trained *word2vec*. *word2vec* provides a method of turning words into arrays that represent various properties of each word. The end result will be the ability to take a tweet and provide the top three categories the network classifies the tweet's subject. 
 
 ### Problem Statement
-In this section, you will want to clearly define the problem that you are trying to solve, including the strategy (outline of tasks) you will use to achieve the desired solution. You should also thoroughly discuss what the intended solution will be for this problem. Questions to ask yourself when writing this section:
-- _Is the problem statement clearly defined? Will the reader understand what you are expecting to solve?_
-- _Have you thoroughly discussed how you will attempt to solve the problem?_
-- _Is an anticipated solution clearly defined? Will the reader understand what results you are looking for?_
 
 Twitter has become a popular platform for users to seek help resolving technical issues for users. Although the platform doesn't serve well for troubleshooting, it's vital for any major brand to address these concerns. An integral part of this is sorting the issue into an appropriate category to allow for follow-up from people skilled in those services.
 
@@ -39,11 +32,6 @@ Due to the uneven class distributions in our dataset, the choice of metric is im
 _(approx. 2-4 pages)_
 
 ### Data Exploration
-In this section, you will be expected to analyze the data you are using for the problem. This data can either be in the form of a dataset (or datasets), input data (or input files), or even an environment. The type of data should be thoroughly described and, if possible, have basic statistics and information presented (such as discussion of input features or defining characteristics about the input or environment). Any abnormalities or interesting qualities about the data that may need to be addressed have been identified (such as features that need to be transformed or the possibility of outliers). Questions to ask yourself when writing this section:
-- _If a dataset is present for this problem, have you thoroughly discussed certain features about the dataset? Has a data sample been provided to the reader?_
-- _If a dataset is present for this problem, are statistics about the dataset calculated and reported? Have any relevant results from this calculation been discussed?_
-- _If a dataset is **not** present for this problem, has discussion been made about the input space or input data for your problem?_
-- _Are there any abnormalities or characteristics about the input space or dataset that need to be addressed? (categorical variables, missing values, outliers, etc.)_
 
 The dataset to train our neural network consists of 19,258 public tweets for the @AzureSupport twitter handle. These have each been categorized to one of 98 services by trained customer service agents working for Microsoft. The dataset has been provided to me in the CSV format. From this format, I will be tokenizing the tweets using the Keras tokenizer. This will allow me to utilize Gensim to import the word2vec pre-trained embedding weights and transform the tweets into a suitable word 100-dimension vector for training and testing. The dataset also contains other pieces of information, such as a sentiment estimation and followers. This dataset was obtained from Microsoft Support, as they have categorized these tweets already for record keeping. The frequency of the categories can be seen below, with some being extremely underrepresented, redundant, or overly specific. 
 
@@ -52,10 +40,6 @@ The dataset to train our neural network consists of 19,258 public tweets for the
 There are some challenges with learning out of this dataset. As it has been manually categorized and there isn't a clear way to define the right or wrong category, some of the data will not be the "correct" category. It's also not consistently labelled with more than one categories, where some tweets directly belong in multiple. This will make validation a little tricky, as the network may output a better categorization than the actual person. The data will be split with numpy into random sets to create training, validation, and testing sets - 80%, 10%, 10% respectively.
 
 ### Exploratory Visualization
-In this section, you will need to provide some form of visualization that summarizes or extracts a relevant characteristic or feature about the data. The visualization should adequately support the data being used. Discuss why this visualization was chosen and how it is relevant. Questions to ask yourself when writing this section:
-- _Have you visualized a relevant characteristic or feature about the dataset or input data?_
-- _Is the visualization thoroughly analyzed and discussed?_
-- _If a plot is provided, are the axes, title, and datum clearly defined?_
 
 ![Word Frequency for each category](treemap.PNG "Treemap")
 
@@ -66,10 +50,6 @@ The bottom-right tan box represents the most common category - VMs. Unsurprising
 
 
 ### Algorithms and Techniques
-In this section, you will need to discuss the algorithms and techniques you intend to use for solving the problem. You should justify the use of each one based on the characteristics of the problem and the problem domain. Questions to ask yourself when writing this section:
-- _Are the algorithms you will use, including any default variables/parameters in the project clearly defined?
-- _Are the techniques to be used thoroughly discussed and justified?
-- _Is it made clear how the input data or datasets will be handled by the algorithms and techniques chosen?
 
 The approach for this project, as mentioned above, is to use a Convolutional Neural network to classify tweets. In order to use a CNN, we first need to treat the data properly. These a few notable choices in this task.
 
@@ -93,13 +73,9 @@ In order to establish the effectiveness of my model, I consider two metrics: _Ca
 
 
 ## III. Methodology
-_(approx. 3-5 pages)_
 
 ### Data Preprocessing
-In this section, all of your preprocessing steps will need to be clearly documented, if any were necessary. From the previous section, any of the abnormalities or characteristics that you identified about the dataset will be addressed and corrected here. Questions to ask yourself when writing this section:
-- _If the algorithms chosen require preprocessing steps like feature selection or feature transformations, have they been properly documented?_
-- _Based on the **Data Exploration** section, if there were abnormalities or characteristics that needed to be addressed, have they been properly corrected?_
-- _If no preprocessing is needed, has it been made clear why?_
+
 
 Our data is provided as large CSV files with classification performed by hand. Along with the category, there are several other fields of information for each Tweet we will train on. These columns aren't of value for us, so I immediately drop them from the dataframe. In addition to removing un-wanted information, Tweets that aren't categorized need to be removed. This can be accomplished by converting the empty fields to NAN values and using the fast dropna method. This accomplished the basic cleaning needed for the data. Next, we perform some actions a little more specific to our particular algorithm.
 
@@ -110,23 +86,26 @@ Similar to encoding categories to numbers, the input tweets themselves need a re
 
 
 ### Implementation
-In this section, the process for which metrics, algorithms, and techniques that you implemented for the given data will need to be clearly documented. It should be abundantly clear how the implementation was carried out, and discussion should be made regarding any complications that occurred during this process. Questions to ask yourself when writing this section:
-- _Is it made clear how the algorithms and techniques were implemented with the given datasets or input data?_
-- _Were there any complications with the original metrics or techniques that required changing prior to acquiring a solution?_
-- _Was there any part of the coding process (e.g., writing complicated functions) that should be documented?_
 
 In order to perform this classification, I implemented a two-part neural network in Keras. The solution was created and ran inside of a Jupyter Notebook utilizing Tensorflow-GPU. 
 
-The first neural network is a _word2vec_ network that was pre-trained on an extremely large corpus (a set of text). The vectors created from a word2vec network are called _Embeddings_. They are a popular way to represent textual information within machine learning. The created embeddings contain a representation for the word that is learned from the corpus, which can reflect the relationship to other words. In my network, I locked the learned embeddings from being trained. In this case, I'm relying completely on the Google-trained set "GoogleNews-Vectors-negative300". The 300 here is an important value, as it represents the length of each embedding vector.
+The first neural network is a _word2vec_ network that was pre-trained on an extremely large corpus (a set of text). The vectors created from a word2vec network are called _Embeddings_. They are a popular way to represent textual information within machine learning. The created embeddings contain a representation for the word that is learned from the corpus, which can reflect the relationship to other words. In my network, I locked the learned embeddings from being trained. In this case, I'm relying completely on the Google-trained set "GoogleNews-Vectors-negative300". The 300 here is an important value, as it represents the length of each embedding vector. Google provides several embedding vector lengths in pre-trained sets, but any value is possible to use if you train it yourself.
 
+This network has created a mapping of words to embedding vectors, which we then input our entire corpus of text into. In essence, this allows us to represent each word with a 300-length vector. This becomes the first step in our algorithm - take each word from our tweet and represent it as an embedding vector.
 
+Once we've created this vector, we use _Reshape_ to change how we're representing the data. There are various ways to process a sentence after _word2vec_, with the traditional method involving averaging the vector of each word in the sentence. However, we instead transform our embedding vectors into a matrix. Each row of this matrix is one word of the tweet represented as an _embedding vector_. 
+
+This matrix is fed into four separate convolutional towers, each creating filters with different sizes. These filters are each 300 columns with varying number of rows. Each row is representing a word, so you can imagine these filters as covering a different number of words. We used 1, 2, 4, and 5 word filters for each separate tower. Once passed through a filter, the network goes through a _Max Pooling_ to allow for translation of words across the sentence. Additionally, this lowers the computation cost by reducing the number of variables moving forward.
+
+The output of each tower is concatenated together before being fed into another small convolution filter. The output of all of this is put into a _Global Max Pooling_ layer that helps more with translational flexibility and vastly reduces our number of parameters by taking the average of each feature map fed into it.
+
+This network is then fed into a simple fully connected dense layer with 256 nodes. The following layer is a dropout layer to help prevent overfitting to the training dataset. Finally, the network ends with a _softmax_ dense network that outputs the probability for the input to match each category.
 
 ### Refinement
-In this section, you will need to discuss the process of improvement you made upon the algorithms and techniques you used in your implementation. For example, adjusting parameters for certain models to acquire improved solutions would fall under the refinement category. Your initial and final solutions should be reported, as well as any significant intermediate results as necessary. Questions to ask yourself when writing this section:
-- _Has an initial solution been found and clearly reported?_
-- _Is the process of improvement clearly documented, such as what techniques were used?_
-- _Are intermediate and final solutions clearly reported as the process is improved?_
 
+The initial pass of the algorithm was surprisingly effective. The first attempt was a sequential network which is much simpler to implement. This was able to predict the category of a tweet with 75% accuracy. However, attempts to increase the accuracy consistently failed. For this reason, the method was switched to a functional multi-column approach. 
+
+In the new architecture, initial training passes have extremely low accuracy. A checkpointer was established with two patiences but the initial couple of training passes never yielded increasing results. The most important breakthrough was to go back to the epoch method and perform a minimum of 10 or more training runs. At two epochs of training, the model yields a lackluster 28% accuracy. However, by epoch 20 we've achieved 92% accuracy. 
 
 ## IV. Results
 _(approx. 2-3 pages)_
