@@ -4,8 +4,6 @@ Cody Farmer
 June 3rd, 2018
 
 ## I. Definition
-_(approx. 1-2 pages)_
-
 ### Project Overview
 
 The goal of this project is to categorize tweets directed at the @AzureSupport handle into the closest Azure service category, such as "Web Applications". This falls into the general *machine learning* tasks called [*Classification*](https://en.wikipedia.org/wiki/Statistical_classification). The field of text classification is one of many *Natural Language Problems* that machine learning has been applied to effectively. After training the network, we will be able to predict the top three categories that an incoming tweet may belong.
