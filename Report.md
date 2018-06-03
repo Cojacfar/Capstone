@@ -1,7 +1,7 @@
 # Machine Learning Engineer Nanodegree
 ## Capstone Project
-Cody Farmer  
-January 31st, 2018
+Cody Farmer
+June 3rd, 2018
 
 ## I. Definition
 _(approx. 1-2 pages)_
@@ -29,8 +29,6 @@ This trained model will then be used to predict the category of any given tweet,
 Due to the uneven class distributions in our dataset, the choice of metric is important. Classical accuracy will result in training the network to be accurate only on the more common categories. For this reason, we will be utilizing the *log loss* function, which is in the *Keras* framework as *categorical_crossentropy*. Cross Entropy uses the probability of each category in the dataset to help create a more normalized accuracy metric.
 
 ## II. Analysis
-_(approx. 2-4 pages)_
-
 ### Data Exploration
 
 The dataset to train our neural network consists of 19,258 public tweets for the @AzureSupport twitter handle. These have each been categorized to one of 98 services by trained customer service agents working for Microsoft. The dataset has been provided to me in the CSV format. From this format, I will be tokenizing the tweets using the Keras tokenizer. This will allow me to utilize Gensim to import the word2vec pre-trained embedding weights and transform the tweets into a suitable word 100-dimension vector for training and testing. The dataset also contains other pieces of information, such as a sentiment estimation and followers. This dataset was obtained from Microsoft Support, as they have categorized these tweets already for record keeping. The frequency of the categories can be seen below, with some being extremely underrepresented, redundant, or overly specific. 
@@ -47,8 +45,6 @@ The above plot is called a treemap. This treemap demonstrates the frequency of w
 
 The bottom-right tan box represents the most common category - VMs. Unsurprisingly, you can see the most common word is "VM". The rest of the common words are still very similar between categories, even with removing the most obvious culprits. This chart demonstrates why this problem can't be solved through more simplistic methods such as word frequency. Some categories - such as billing questions represented in blue - shine in this graph with several different unique words as the most common tweeted. 
 
-
-
 ### Algorithms and Techniques
 
 The approach for this project, as mentioned above, is to use a Convolutional Neural network to classify tweets. In order to use a CNN, we first need to treat the data properly. These a few notable choices in this task.
@@ -63,17 +59,11 @@ The approach for this project, as mentioned above, is to use a Convolutional Neu
 
 These constants are used to prepare the Tweets for processing through the CNN. This CNN is will work on a matrix of the Tweet, instead of the more common method of operating on averages or sums of the _word2vec_ embeddings. As each sequence is fed into the CNN, filters attempt to pick out the most relevant patterns present in the input data. On top of these filters, we create pools to allow the network to detect the pattern in differnt positions within the tweet. This process is the basis for all CNNs. In our network, the _word2vec_ embeddings are fed into four different parallel filters. Each set of filters is individually pooled, then concatenated together. This total array is fed into a dense neural network that is globally averaged together. Then we've created another dense network with a _softmax_ activation. This outputs the likelyhood of each tweet belong to a particular category. 
 
-
-
-
 ### Benchmark
 
 In order to establish the effectiveness of my model, I consider two metrics: _Categorical Accuracy_ and _Top 3 Accuracy_. We have available a very good paper to compare against in Yoon Kim's ^[1] work. Our model corresponds closely with what she defines as CNN-static. Her model's accuracy over several different test sets ranges from 81.5% to 93.4% (ignoring SST-1, which I consider an outlier). We will consider our model a success if the _Categorical Accuracy_ surpasses the minimum of those tests - 81.5%.
 
-
-
 ## III. Methodology
-
 ### Data Preprocessing
 
 
@@ -108,14 +98,8 @@ The initial pass of the algorithm was surprisingly effective. The first attempt 
 In the new architecture, initial training passes have extremely low accuracy. A checkpointer was established with two patiences but the initial couple of training passes never yielded increasing results. The most important breakthrough was to go back to the epoch method and perform a minimum of 10 or more training runs. At two epochs of training, the model yields a lackluster 28% accuracy. However, by epoch 20 we've achieved 92% accuracy.
 
 ## IV. Results
-_(approx. 2-3 pages)_
 
 ### Model Evaluation and Validation
-In this section, the final model and any supporting qualities should be evaluated in detail. It should be clear how the final model was derived and why this model was chosen. In addition, some type of analysis should be used to validate the robustness of this model and its solution, such as manipulating the input data or environment to see how the model’s solution is affected (this is called sensitivity analysis). Questions to ask yourself when writing this section:
-- _Is the final model reasonable and aligning with solution expectations? Are the final parameters of the model appropriate?_
-- _Has the final model been tested with various inputs to evaluate whether the model generalizes well to unseen data?_
-- _Is the model robust enough for the problem? Do small perturbations (changes) in training data or the input space greatly affect the results?_
-- _Can results found from the model be trusted?_
 
 The final model is similar to the initial, with four separate towers containing a _Convolutional_ layer and a _MaxPooling_ layer before being concatenated. Each convolutional layer is fed a matrix from the embedding layer, where each row is a word embedding generated by _word2vec_. 
 
@@ -123,32 +107,30 @@ Each convolutional layer has 512 filters. This value is a balance between effect
 
 The output of every tower is concatenated together on the 2nd axis. We then feed this large set of filters into another convolutional layer with 512 filters and a filter size of 1. This layer will give the model the ability to capture larger patterns. This is fed into a 2D Global Max Pooling layer to flatten the model.
 
-This is all fed into a fully connected network of neural nodes, a drop-out layer to help with overfitting, and a final dense layer using _softmax_ activation to procude our probabilities.
+This is all fed into a fully connected network of neural nodes, a drop-out layer to help with overfitting, and a final dense layer using _softmax_ activation to produce our probabilities.
+
+The robustness of the network is assisted by the dropout layer, and utilizing a _softmax_ activation layer allows us to provide options other than the best fit. In addition, the training data was split into separate sets so we would not using text or validation data during the training process. This allows us to have confidence that the network will generalize to inputs that were not training upon. 
 
 
 
 ### Justification
-In this section, your model’s final solution and its results should be compared to the benchmark you established earlier in the project using some type of statistical analysis. You should also justify whether these results and the solution are significant enough to have solved the problem posed in the project. Questions to ask yourself when writing this section:
-- _Are the final results found stronger than the benchmark result reported earlier?_
-- _Have you thoroughly analyzed and discussed the final solution?_
-- _Is the final solution significant enough to have solved the problem?_
 
+The created model outperformed the earlier benchmark in terms of categorical accuracy, with 92% versus their 81.5%. Additional, when working with the top three values we come out at 97%. When looking to provide users options for category, 97% is definitely high enough. 
 
 ## V. Conclusion
-_(approx. 1-2 pages)_
-
-### Free-Form Visualization
-In this section, you will need to provide some form of visualization that emphasizes an important quality about the project. It is much more free-form, but should reasonably support a significant result or characteristic about the problem that you want to discuss. Questions to ask yourself when writing this section:
-- _Have you visualized a relevant or important quality about the problem, dataset, input data, or results?_
-- _Is the visualization thoroughly analyzed and discussed?_
-- _If a plot is provided, are the axes, title, and datum clearly defined?_
-
 ### Reflection
-In this section, you will summarize the entire end-to-end problem solution and discuss one or two particular aspects of the project you found interesting or difficult. You are expected to reflect on the project as a whole to show that you have a firm understanding of the entire process employed in your work. Questions to ask yourself when writing this section:
-- _Have you thoroughly summarized the entire process you used for this project?_
-- _Were there any interesting aspects of the project?_
-- _Were there any difficult aspects of the project?_
-- _Does the final model and solution fit your expectations for the problem, and should it be used in a general setting to solve these types of problems?_
+
+This project presented a lot of challenges around training and understanding the details of Keras functional networks. The problem space of natural language processing and classification are well studied, helping give me direction in designing the network.
+
+I initially tried a simpler approach of using the sequential network design covered in the curriculum. However, I quickly realized this method would not suffice. My initial network actually produced an accuracy score of ~70%. I was shocked that such a simple network would perform at this rate on the first pass, but I needed to improve it. A few minor tweaks later, and it was consistently performing around 20% accuracy. Basically, the initial result was due to a combination of overfitting and luck with parameter settings.
+
+A large part of the project's time consisted of waiting for training to complete and cleaning the input data. I found the data cleaning to be surprisingly difficult. Although Pandas is very popular, the method for producing output data in the format I required was not immediately obvious to me. After quite a bit of reading and looking at examples, I found the right combination to meet the requirements of both _word2vec_ and my Keras network.
+
+The general design of my network was based off of Yoon Kim's [1] paper, but I found it rather spare in details. I was surprised to see almost nothing about how the format for the input data was created, or details around the layers utilized. The general terms in the paper left me with a lot of exploration on my own. This also forced me to work on my own understanding of what type of layers to use, such as _GlobalMaxPooling_ or _GlobalAvgPooling_.
+
+Overall, I greatly enjoyed working in the project. The relative ease of creating such an accurate model within Keras is shocking, and not something I would have considered ever being able to do before taking the course. It also reinforced just how much time training can take! The final model takes about 6 minutes per epoch. I was constantly lowering my filter numbers and trying larger pooling layers to help with both training time and VRAM. The idea of doing this on a CPU would be mind blowing, as it would take forever to do a single epoch! Additionally, it helps put into perspective how offerings such as Azure's HDInsight clusters are so desirable for machine learning. The ability to spin up a machine that crunches through a gigantic model within an hour or two is definitely tempting.
+
+All said and done, I'm extremely happy with how the model performed. CNNs are the staple for solving Natural Language Problems moving forward, and this particular model is nice as it allows me to create an API to return the analysis from the trained model extremely quickly.
 
 ### Improvement
 In this section, you will need to provide discussion as to how one aspect of the implementation you designed could be improved. As an example, consider ways your implementation can be made more general, and what would need to be modified. You do not need to make this improvement, but the potential solutions resulting from these changes are considered and compared/contrasted to your current solution. Questions to ask yourself when writing this section:
@@ -156,16 +138,8 @@ In this section, you will need to provide discussion as to how one aspect of the
 - _Were there algorithms or techniques you researched that you did not know how to implement, but would consider using if you knew how?_
 - _If you used your final solution as the new benchmark, do you think an even better solution exists?_
 
------------
+The first improvement that comes to mind is around the _Word Embeddings_. There are several options for different types of _Word Embeddings_, including a newer popular FastText. I did not spend my time experimenting for which ones produced the best result. In addition, I can train my own instead of using the pre-created values. It's important that I use an extremely large corpus when training a _Word Embedding_ network, so I did not do it in this project. With either more data - or just scraping general data from Twitter - I can train my own more accurate embeddings. I think this space is where the most improvement can be made.
 
-**Before submitting, ask yourself. . .**
-
-- Does the project report you’ve written follow a well-organized structure similar to that of the project template?
-- Is each section (particularly **Analysis** and **Methodology**) written in a clear, concise and specific fashion? Are there any ambiguous terms or phrases that need clarification?
-- Would the intended audience of your project be able to understand your analysis, methods, and results?
-- Have you properly proof-read your project report to assure there are minimal grammatical and spelling mistakes?
-- Are all the resources used for this project correctly cited and referenced?
-- Is the code that implements your solution easily readable and properly commented?
-- Does the code execute without error and produce results similar to those reported?
+I think a better solution can be achieved as far as the top three, but it would be a difficult task with already such a high matching percent. 
 
 [1] Kim, Yoon https://arxiv.org/pdf/1408.5882.pdf
