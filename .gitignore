@@ -2,3 +2,13 @@
 *.md5
 *.hdf5
 *.h5
+logs/checkpoint
+logs/events.out.tfevents.1530468266.MASTER-PC
+logs/events.out.tfevents.1530468842.MASTER-PC
+logs/keras_embedding.ckpt-0.index
+logs/keras_embedding.ckpt-0.data-00000-of-00001
+logs/keras_embedding.ckpt-0.meta
+logs/keras_embedding.ckpt-10.data-00000-of-00001
+logs/keras_embedding.ckpt-10.index
+logs/keras_embedding.ckpt-10.meta
+logs/projector_config.pbtxt
