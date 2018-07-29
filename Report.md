@@ -8,8 +8,9 @@ June 3rd, 2018
 
 The goal of this project is to categorize tweets directed at the @AzureSupport handle into the closest Azure service category, such as "Web Applications". This falls into the general *machine learning* tasks called [*Classification*](https://en.wikipedia.org/wiki/Statistical_classification). The field of text classification is one of many *Natural Language Problems* that machine learning has been applied to effectively. After training the network, we will be able to predict the top three categories that an incoming tweet may belong.
 
+ Our solution to this problem will utilize a *convolutional neural network* operating on word vectors created by a pre-trained *word2vec*. *word2vec* provides a method of turning words into arrays that represent various properties of each word. The end result will be the ability to take a tweet and provide the top three categories the network classifies the tweet's subject.
 
- Our solution to this problem will utilize a *convolutional neural network* operating on word vectors created by a pre-trained *word2vec*. *word2vec* provides a method of turning words into arrays that represent various properties of each word. The end result will be the ability to take a tweet and provide the top three categories the network classifies the tweet's subject. 
+ The task of categorizing natural language applications with a *convolutional neural network* has been explored in a paper by Yoon Kim ^[1]. In her paper, she utilized three towers feeding into a global max pooling layer. This project will follow a similar approach.
 
 ### Problem Statement
 
@@ -24,16 +25,20 @@ This *word2vec* network will output a vector representing each word fed into it.
 This trained model will then be used to predict the category of any given tweet, chosen by the highest probability categories. In order to make the prediction, the tweets will first need to be fed into the *tokenizer* and turned into sequences. A successful prediction will contain the correct category anywhere in the top three, but the training goal will be to make the correct prediction as the highest probability. 
 
 ### Metrics
-Due to the uneven class distributions in our dataset, the choice of metric is important. Classical accuracy will result in training the network to be accurate only on the more common categories. For this reason, we will be utilizing the *log loss* function, which is in the *Keras* framework as *categorical_crossentropy*. Cross Entropy uses the probability of each category in the dataset to help create a more normalized accuracy metric.
+Due to the uneven class distributions in our dataset, the choice of metric is important. Classical accuracy will result in training the network to be accurate only on the more common categories. For this reason, we will be utilizing the *log loss* function, which is in the *Keras* framework as *categorical_crossentropy*. Cross Entropy uses the probability of each category in the dataset to help create a more normalized accuracy metric.'
+
+The *log loss* function is defined as -log P(yt|yp) = -(yt log(yp) + (1 - yt) * log(1 - yp)) where yp is the probability that yt = 1. 
 
 ## II. Analysis
 ### Data Exploration
 
-The dataset to train our neural network consists of 19,258 public tweets for the @AzureSupport twitter handle. These have each been categorized to one of 98 services by trained customer service agents working for Microsoft. The dataset has been provided to me in the CSV format. From this format, I will be tokenizing the tweets using the Keras tokenizer. This will allow me to utilize Gensim to import the word2vec pre-trained embedding weights and transform the tweets into a suitable word 100-dimension vector for training and testing. The dataset also contains other pieces of information, such as a sentiment estimation and followers. This dataset was obtained from Microsoft Support, as they have categorized these tweets already for record keeping. The frequency of the categories can be seen below, with some being extremely underrepresented, redundant, or overly specific. 
+The dataset to train our neural network consists of 19,258 public tweets for the @AzureSupport twitter handle. These have each been categorized to one of 98 services by trained customer service agents working for Microsoft. The dataset has been provided to me in the CSV format. From this format, I will be tokenizing the tweets using the Keras tokenizer. This will allow me to utilize Gensim to import the word2vec pre-trained embedding weights and transform the tweets into a suitable word 100-dimension vector for training and testing. The dataset also contains other pieces of information, such as a sentiment estimation and followers. This dataset was obtained from Microsoft Support, as they have categorized these tweets already for record keeping. The frequency of the categories can be seen below, with some being extremely underrepresented, redundant, or overly specific.
 
 ![Category Frequency in @AzureSupport Tweets](frequency.PNG "Frequency")
 
-There are some challenges with learning out of this dataset. As it has been manually categorized and there isn't a clear way to define the right or wrong category, some of the data will not be the "correct" category. It's also not consistently labelled with more than one categories, where some tweets directly belong in multiple. This will make validation a little tricky, as the network may output a better categorization than the actual person. The data will be split with numpy into random sets to create training, validation, and testing sets - 80%, 10%, 10% respectively.
+There are some challenges with learning out of this dataset. First off, the data has a *lexical richness* of .925 - which is incredibly high! This means that the corpus is going to be stretched to it's limit as new Tweets come in, due to the varying word usage present in the dataset.
+
+ As it has been manually categorized and there isn't a clear way to define the right or wrong category, some of the data will not be the "correct" category. It's also not consistently labelled with more than one categories, where some tweets directly belong in multiple. This will make validation a little tricky, as the network may output a better categorization than the actual person. The data will be split with numpy into random sets to create training, validation, and testing sets - 80%, 10%, 10% respectively.
 
 ### Exploratory Visualization
 
@@ -116,6 +121,19 @@ The robustness of the network is assisted by the dropout layer, and utilizing a 
 The created model outperformed the earlier benchmark in terms of categorical accuracy, with 92% versus their 81.5%. Additional, when working with the top three values we come out at 97%. When looking to provide users options for category, 97% is definitely high enough. 
 
 ## V. Conclusion
+
+## Free-Form Visualization
+In this section, you will need to provide some form of visualization that emphasizes an important quality about the project. It is much more free-form, but should reasonably support a significant result or characteristic about the problem that you want to discuss. Questions to ask yourself when writing this section:
+- _Have you visualized a relevant or important quality about the problem, dataset, input data, or results?_
+- _Is the visualization thoroughly analyzed and discussed?_
+- _If a plot is provided, are the axes, title, and datum clearly defined?_
+
+![t-SNE of Word Embeddings](t_sne.PNG "t-SNE")
+
+[t-SNE](https://distill.pub/2016/misread-tsne/) is a popular method of visualizing high-dimensionality data. In the above image, we've run t-SNE for 3000 steps at a _perplexity_ of 50. Simulations were also ran at 5 and 10 _perplexity_, which generated a similar output.
+
+This graph is generated from the data in our embedding layer. It really highlights the available groupings in our features. We can see that two clear clusters stand out. These clusters represent how the word embeddings are representing our input text. One cluster is indicative of common, similar terms that are not useful in our understanding of the text. However, the other set of points demonstrate a wide range of possible text while the embeddings accomplish a wide distinct space to make judgements in category.
+
 ### Reflection
 
 This project presented a lot of challenges around training and understanding the details of Keras functional networks. The problem space of natural language processing and classification are well studied, helping give me direction in designing the network.
